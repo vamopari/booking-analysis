@@ -63,3 +63,31 @@ if __name__ == "__main__":
     print("Transformed X shape:", X_transformed.shape)
     print("\nFirst transformed row (first 10 values):")
     print(X_transformed[0][:10])
+
+
+def split_data(df, test_size=0.2, random_state=42):
+    from sklearn.model_selection import train_test_split
+    X = df[FEATURES]
+    y = df[TARGET].astype(int)
+    return train_test_split(
+        X, y, test_size=test_size, random_state=random_state, stratify=y
+    )
+
+
+if __name__ == "__main__":
+    df = load_clean_data()
+    X_train, X_test, y_train, y_test = split_data(df)
+
+    print("Train shape:", X_train.shape)
+    print("Test shape:", X_test.shape)
+    print("\nTrain target balance:")
+    print(y_train.value_counts(normalize=True))
+    print("\nTest target balance:")
+    print(y_test.value_counts(normalize=True))
+
+    preprocessor = build_preprocessor()
+    X_train_transformed = preprocessor.fit_transform(X_train)   # fit on TRAIN only
+    X_test_transformed = preprocessor.transform(X_test)          # just apply to TEST
+
+    print("\nTransformed train shape:", X_train_transformed.shape)
+    print("Transformed test shape:", X_test_transformed.shape)
