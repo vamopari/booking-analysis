@@ -1,0 +1,21 @@
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+cat > .gitignore << 'EOF'
+# Pixi environment (reproducible from pyproject.toml + pixi.lock)
+.pixi/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# OS/editor cruft
+.DS_Store
+.vscode/
+
+# Secrets
+.env
+EOF
