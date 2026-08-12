@@ -25,8 +25,33 @@ st.set_page_config(page_title="Hotel Booking Cancellation Classifier", layout="w
 st.title("🏨 Hotel Booking Cancellation — Model Comparison App")
 st.caption("Upload test data, pick up to 2 models, and compare them side by side.")
 
+# --- Sidebar ---------------------------------------------------------
 st.sidebar.header("Configuration")
-uploaded_file = st.sidebar.file_uploader("Upload test data (CSV)", type=["csv"])
+
+# 1. Download button — lets the user grab the sample CSV to inspect or reuse
+with open("test_data.csv", "rb") as f:
+    st.sidebar.download_button(
+        label="⬇️ Download test_data.csv",
+        data=f,
+        file_name="test_data.csv",
+        mime="text/csv",
+        help="Downloads the bundled 1,000-row sample test dataset to your machine.",
+    )
+
+# 2. Upload button — user brings their own CSV
+uploaded_file = st.sidebar.file_uploader(
+    "Upload test data (CSV)",
+    type=["csv"],
+    help="Upload your own CSV with the same columns as test_data.csv, "
+         "including the true 'is_canceled' label column.",
+)
+
+# 3. Use bundled sample directly — skips the download/upload round trip
+use_sample_clicked = st.sidebar.button(
+    "📎 Use bundled test_data.csv",
+    help="Loads the bundled sample test dataset directly, without needing "
+         "to download and re-upload it.",
+)
 
 selected_models = st.sidebar.multiselect(
     "Choose up to 2 models to compare",
@@ -34,6 +59,26 @@ selected_models = st.sidebar.multiselect(
     default=DEFAULT_SELECTION,
     max_selections=2,
 )
+
+# --- Persist the chosen data source across reruns (e.g. when the model
+# multiselect changes) using session_state, since st.button's True value
+# only lasts for the single rerun right after it's clicked. -----------
+if use_sample_clicked:
+    st.session_state["data_source"] = "sample"
+elif uploaded_file is not None:
+    st.session_state["data_source"] = "uploaded"
+    st.session_state["uploaded_data"] = pd.read_csv(uploaded_file)
+
+data_source = st.session_state.get("data_source")
+
+if data_source == "sample":
+    data = pd.read_csv("test_data.csv")
+    st.sidebar.success("Using bundled test_data.csv")
+elif data_source == "uploaded":
+    data = st.session_state["uploaded_data"]
+    st.sidebar.success("Using your uploaded CSV")
+else:
+    data = None
 
 
 @st.cache_resource
@@ -52,6 +97,7 @@ def compute_metrics(model, X, y_true):
         "F1": f1_score(y_true, y_pred),
         "MCC": matthews_corrcoef(y_true, y_pred),
     }
+
 
 def render_model_column(model_name, X, y_true):
     model = load_model(MODEL_FILES[model_name])
@@ -84,11 +130,15 @@ def render_model_column(model_name, X, y_true):
         )
         st.dataframe(pd.DataFrame(report).transpose().round(3))
 
-if uploaded_file is None:
-    st.info("👈 Upload a CSV file from the sidebar to get started.")
+
+# --- Main panel --------------------------------------------------------
+if data is None:
+    st.info(
+        "👈 Get started from the sidebar: download the sample data, "
+        "upload your own CSV, or click 'Use bundled test_data.csv'."
+    )
 else:
-    data = pd.read_csv(uploaded_file)
-    st.subheader("Preview of uploaded data")
+    st.subheader("Preview of data")
     st.dataframe(data.head())
 
     if TARGET not in data.columns:
