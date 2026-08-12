@@ -16,29 +16,28 @@ MODEL_FILES = {
     "Decision Tree": "model/decision_tree.joblib",
     "kNN": "model/knn.joblib",
     "Naive Bayes": "model/naive_bayes.joblib",
-    "Random Forest (Ensemble)": "model/random_forest.joblib",
+    "Random Forest": "model/random_forest.joblib",
 }
 
-DEFAULT_SELECTION = ["Random Forest (Ensemble)", "Naive Bayes"]
+DEFAULT_SELECTION = ["Random Forest", "Naive Bayes"]
 
 st.set_page_config(page_title="Hotel Booking Cancellation Classifier", layout="wide")
-st.title("🏨 Hotel Booking Cancellation — Model Comparison App")
+st.title("🏨 Hotel Booking Cancellation — Model Comparison")
 st.caption("Upload test data, pick up to 2 models, and compare them side by side.")
+st.caption("Download provided test_data ad upload it again or directly attach provided data.")
 
 # --- Sidebar ---------------------------------------------------------
 st.sidebar.header("Configuration")
 
-# 1. Download button — lets the user grab the sample CSV to inspect or reuse
 with open("test_data.csv", "rb") as f:
     st.sidebar.download_button(
         label="⬇️ Download test_data.csv",
         data=f,
         file_name="test_data.csv",
         mime="text/csv",
-        help="Downloads the bundled 1,000-row sample test dataset to your machine.",
+        help="Downloads the bundled 1,000+ row sample test dataset to your machine.",
     )
 
-# 2. Upload button — user brings their own CSV
 uploaded_file = st.sidebar.file_uploader(
     "Upload test data (CSV)",
     type=["csv"],
@@ -46,7 +45,6 @@ uploaded_file = st.sidebar.file_uploader(
          "including the true 'is_canceled' label column.",
 )
 
-# 3. Use bundled sample directly — skips the download/upload round trip
 use_sample_clicked = st.sidebar.button(
     "📎 Use bundled test_data.csv",
     help="Loads the bundled sample test dataset directly, without needing "
@@ -60,9 +58,6 @@ selected_models = st.sidebar.multiselect(
     max_selections=2,
 )
 
-# --- Persist the chosen data source across reruns (e.g. when the model
-# multiselect changes) using session_state, since st.button's True value
-# only lasts for the single rerun right after it's clicked. -----------
 if use_sample_clicked:
     st.session_state["data_source"] = "sample"
 elif uploaded_file is not None:
@@ -130,8 +125,6 @@ def render_model_column(model_name, X, y_true):
         )
         st.dataframe(pd.DataFrame(report).transpose().round(3))
 
-
-# --- Main panel --------------------------------------------------------
 if data is None:
     st.info(
         "👈 Get started from the sidebar: download the sample data, "
