@@ -1,19 +1,4 @@
 
-## Discussion: Precision/Recall Trade-off (Logistic Regression)
-
-Default Logistic Regression (threshold = 0.5): Accuracy 0.809, Precision 0.839, Recall 0.598, F1 0.699, MCC 0.582.
-
-Using `class_weight="balanced"`: Accuracy 0.787, Precision 0.709, Recall 0.721, F1 0.715, MCC 0.545.
-
-AUC stayed identical (0.852) in both cases — `class_weight` shifts the decision
-threshold's effective trade-off point but doesn't change the model's underlying
-ranking ability. We kept the default (unweighted) model for consistency across
-all 5 models, but in a real deployment, the choice would depend on which error
-is costlier for the hotel: a missed cancellation (lost resale opportunity) vs.
-a false alarm (unnecessary overbooking prep). If missed cancellations are
-costlier, the balanced version's higher recall (0.721 vs 0.598) would likely
-be the better production choice despite the drop in precision.
-
 # Hotel Booking Cancellation Prediction
 
 ## a. Problem Statement
@@ -67,7 +52,20 @@ it writes the same numbers to `model/metrics_comparison.csv`.)*
 |---|---|
 | Logistic Regression | Solid linear baseline; can't capture feature interactions (e.g. deposit_type + lead_time combined), which caps its recall. |
 | Decision Tree | Beats the linear baseline on every metric by capturing non-linear splits and interactions; depth capped at 10 to avoid overfitting. |
-| kNN | Trained on a 15,000-row stratified sample (not the full ~95K) to keep the deployed model small and fast — costs a little accuracy vs. the full-data version we tested, but keeps Streamlit deployment lightweight. Prediction is also far slower than the other models since it computes distances against stored training points at inference time (~26s for the full-data version vs. under a second for the others). |
+| kNN | Trained on a 15,000-row stratified sample (not the full ~95K) to keep the deployed model small and fast — costs a little accuracy vs. the full-data version we tested, but keeps Streamlit deployment lightweight. Prediction is also far slower than the other models since it computes distances against stored training points at inference time (~26s for the full-data version vs. under a second for the others). |## Discussion: Precision/Recall Trade-off (Logistic Regression)
+
+Default Logistic Regression (threshold = 0.5): Accuracy 0.809, Precision 0.839, Recall 0.598, F1 0.699, MCC 0.582.
+
+Using `class_weight="balanced"`: Accuracy 0.787, Precision 0.709, Recall 0.721, F1 0.715, MCC 0.545.
+
+AUC stayed identical (0.852) in both cases — `class_weight` shifts the decision
+threshold's effective trade-off point but doesn't change the model's underlying
+ranking ability. We kept the default (unweighted) model for consistency across
+all 5 models, but in a real deployment, the choice would depend on which error
+is costlier for the hotel: a missed cancellation (lost resale opportunity) vs.
+a false alarm (unnecessary overbooking prep). If missed cancellations are
+costlier, the balanced version's higher recall (0.721 vs 0.598) would likely
+be the better production choice despite the drop in precision.
 | Naive Bayes | Weakest model overall (lowest AUC, F1, MCC) but with by far the highest precision. Its independence assumption between correlated features (e.g. deposit_type and previous_cancellations) makes it very conservative about predicting "cancelled" — it misses most real cancellations (recall 0.361) but is rarely wrong when it does flag one. |
 | Random Forest (Ensemble) | Best AUC (0.889) and precision (0.883) — averaging many trees improves ranking quality over a single tree. Recall is middling here, likely because both the single tree and the forest were depth-capped at 10 for a fair comparison, constraining how much individual trees could specialize before averaging. |
 | **Best overall** | **Random Forest** for ranking quality (AUC) and precision; **kNN** for recall/F1 if catching more true cancellations matters more than avoiding false alarms. The right choice depends on which error — a missed cancellation or a false alarm — is costlier for the business. |
