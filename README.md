@@ -122,5 +122,5 @@ pixi run streamlit run app.py
 ```
 
 ## Live Links
-- **Streamlit App:** `<ADD ONCE DEPLOYED>`
+- **Streamlit App:** https://vishal-mopari.streamlit.app/
 - **BITS Virtual Lab Screenshot:** `<ADD ONCE CAPTURED>`
