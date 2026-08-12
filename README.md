@@ -16,8 +16,6 @@ be the better production choice despite the drop in precision.
 
 # Hotel Booking Cancellation Prediction
 
-![App Screenshot](docs/screenshots/scr_for_readme.png)
-
 ## a. Problem Statement
 Hotel cancellations disrupt revenue forecasting and room inventory planning
 for hospitality businesses. This project builds and compares five
@@ -125,4 +123,5 @@ pixi run streamlit run app.py
 
 ## Live Links
 - **Streamlit App:** https://vishal-mopari.streamlit.app/
-- **BITS Virtual Lab Screenshot:** `<ADD ONCE CAPTURED>`
+- **BITS Virtual Lab Screenshot:**
+![App Screenshot](docs/screenshots/scr_for_readme.png)
