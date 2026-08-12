@@ -16,6 +16,8 @@ be the better production choice despite the drop in precision.
 
 # Hotel Booking Cancellation Prediction
 
+![App Screenshot](docs/screenshots/scr_for_readme.png)
+
 ## a. Problem Statement
 Hotel cancellations disrupt revenue forecasting and room inventory planning
 for hospitality businesses. This project builds and compares five
